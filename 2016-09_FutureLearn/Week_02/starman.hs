@@ -5,7 +5,7 @@ makeSecretExcept secret guesses =
 
 -- Check if the user has won
 hasWon :: String -> String -> Bool
-hasWon secret guesses = all (\l -> elem l guesses) secret
+hasWon secret guesses = all (flip elem guesses) secret
 
 mainLoop :: String -> Int -> Int -> String -> IO ()
 mainLoop secret maxLives currLives guesses = do
@@ -17,8 +17,9 @@ mainLoop secret maxLives currLives guesses = do
         putStr "Your guess: "
         line <- getLine
         let newGuesses = head line : guesses
+        let currLives' = if elem (head line) secret
+                         then currLives
+                         else currLives - 1
         if hasWon secret newGuesses
         then do { putStrLn secret; putStrLn "You won!" }
-        else mainLoop secret maxLives (if elem (head line) secret
-                                       then currLives
-                                       else currLives - 1) newGuesses
+        else mainLoop secret maxLives currLives' newGuesses
